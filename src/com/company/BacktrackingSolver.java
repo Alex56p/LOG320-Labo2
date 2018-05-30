@@ -5,8 +5,7 @@ import javafx.util.Pair;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class BacktrackingSolver {
 
@@ -145,5 +144,65 @@ public class BacktrackingSolver {
         }
 
         System.out.println(numberOfCall);
+    }
+
+    //Fonctione qui vérifier que la grille complète est valide.
+    //À utiliser pour des tests unitaires seulement.
+    //NE PAS TOUCHER
+    boolean isValid()
+    {
+        List<Integer> validList = new ArrayList<>();
+        for (int i = 1; i <= 9; ++i)
+        {
+            validList.add(i);
+        }
+
+        List<List<Integer>> lists = new ArrayList<>();
+
+        for (List<Integer> l : grid)
+        {
+            if (l.contains(0))
+            {
+                return false;
+            }
+
+            List newLine = new ArrayList(l);
+            lists.add(newLine);
+        }
+
+
+        List<List<Integer>> squares = new ArrayList<>();
+
+        for (int i = 0; i < 9; ++i)
+        {
+            squares.add(new ArrayList<>());
+        }
+
+        for (int i = 0; i < 9; ++i)
+        {
+            List<Integer> column = new ArrayList<>();
+
+            for (int j = 0; j < 9; ++j)
+            {
+                squares.get(i/3*3+j/3).add(grid.get(i).get(j));
+                column.add(grid.get(j).get(i));
+            }
+
+            lists.add(column);
+        }
+
+        lists.addAll(squares);
+
+        for (List<Integer> list : lists)
+        {
+            Collections.sort(list);
+
+            if (!validList.equals(list))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

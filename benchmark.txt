@@ -1,0 +1,14 @@
+Format: nombre d'itérations / temps(ms)
+
+-----------------------------------------
+
+Première itération, backtracking de base:
+
+easy.txt: 107 / 10
+medium.txt: 2917 / 11
+hard.txt: 1904541 / 911
+faulty.txt: 1299 / 2
+grid.txt: 40271 / 21
+
+-----------------------------------------
+
