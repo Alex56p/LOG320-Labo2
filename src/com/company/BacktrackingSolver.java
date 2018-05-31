@@ -15,6 +15,7 @@ public class BacktrackingSolver {
 
     private List<List<Integer>> grid = new ArrayList<>();
     private int numberOfCall = 0;
+    private List<List<List<Integer>>> possibilities = new ArrayList<>();
 
     public BacktrackingSolver(String filePath) {
         try {
@@ -25,6 +26,27 @@ public class BacktrackingSolver {
                 }
                 grid.add(numbers);
             }
+
+            for (int i = 0; i < 9; ++i)
+            {
+                possibilities.add(new ArrayList<>());
+
+                for (int j = 0; j < 9; ++j)
+                {
+                    possibilities.get(i).add(new ArrayList<>());
+
+                    if (grid.get(i).get(j) == UNASSIGNED_VALUE)
+                    {
+                        for (int k = 1; k <= 9; ++k)
+                        {
+                            if (isValid(i, j, k))
+                            {
+                                possibilities.get(i).get(j).add(k);
+                            }
+                        }
+                    }
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -32,21 +54,79 @@ public class BacktrackingSolver {
 
     public boolean Solve() {
         numberOfCall++;
+
+        List<Pair<Pair<Integer, Integer>, Integer>> modifications = new ArrayList<>();
+        List<Pair<Integer, Integer>> numbersAdded = new ArrayList<>();
+        boolean numberPlaced = true;
+
+        while (numberPlaced)
+        {
+            numberPlaced = false;
+
+            for (int i = 0; i < 9; ++i)
+            {
+                for (int j = 0; j < 9; ++j)
+                {
+                    if (grid.get(i).get(j) == UNASSIGNED_VALUE)
+                    {
+                        List<Integer> elementsToRemove = new ArrayList<>();
+
+                        for (int k : possibilities.get(i).get(j))
+                        {
+                            if (!isValid(i, j, k))
+                            {
+                                elementsToRemove.add(k);
+                                modifications.add(new Pair<>(new Pair<>(i, j), k));
+                            }
+                        }
+
+                        for (int element : elementsToRemove)
+                        {
+                            possibilities.get(i).get(j).remove(new Integer(element));
+                        }
+
+                        if (grid.get(i).get(j) == UNASSIGNED_VALUE && possibilities.get(i).get(j).size() == 1)
+                        {
+                            grid.get(i).set(j, possibilities.get(i).get(j).get(0));
+                            modifications.add(new Pair<>(new Pair<>(i, j), possibilities.get(i).get(j).get(0)));
+                            possibilities.get(i).get(j).remove(0);
+                            numbersAdded.add(new Pair<>(i, j));
+                            numberPlaced = true;
+                        }
+                    }
+                }
+            }
+        }
+
         Pair<Integer, Integer> unassignedCase = findNextUnassignedLocation();
 
         if(unassignedCase == null)
             return true;
 
-        for(int i = MIN_VALUE; i <= MAX_VALUE; i++) {
-            if(isValid(unassignedCase.getKey(), unassignedCase.getValue(), i)) {
-                grid.get(unassignedCase.getKey()).set(unassignedCase.getValue(), i);
+        List<Integer> nbToTry = new ArrayList<>(possibilities.get(unassignedCase.getKey()).get(unassignedCase.getValue()));
 
-                if(Solve()) {
-                    return true;
-                }
+        possibilities.get(unassignedCase.getKey()).get(unassignedCase.getValue()).clear();
 
-                grid.get(unassignedCase.getKey()).set(unassignedCase.getValue(), UNASSIGNED_VALUE);
+        for(int number : nbToTry) {
+            grid.get(unassignedCase.getKey()).set(unassignedCase.getValue(), number);
+
+            if(Solve()) {
+                return true;
             }
+        }
+
+        grid.get(unassignedCase.getKey()).set(unassignedCase.getValue(), UNASSIGNED_VALUE);
+        possibilities.get(unassignedCase.getKey()).set(unassignedCase.getValue(), new ArrayList<>(nbToTry));
+
+
+        for (Pair<Pair<Integer, Integer>, Integer> modif : modifications)
+        {
+            possibilities.get(modif.getKey().getKey()).get(modif.getKey().getValue()).add(modif.getValue());
+        }
+
+        for (Pair<Integer, Integer> nbAdded : numbersAdded)
+        {
+            grid.get(nbAdded.getKey()).set(nbAdded.getValue(), UNASSIGNED_VALUE);
         }
 
         return false;
@@ -95,8 +175,9 @@ public class BacktrackingSolver {
         int boxRow = (row / 3) * 3;
         int boxCol = (col / 3) * 3;
         for(int i = 0; i < 3; i++) {
+            List<Integer> rowList = grid.get(i + boxRow);
             for(int j = 0; j < 3; j++) {
-                if(grid.get(i + boxRow).get(j + boxCol) == value) {
+                if(rowList.get(j + boxCol) == value) {
                     return false;
                 }
             }
