@@ -15,14 +15,14 @@ public class BacktrackingSolver {
     private final int UNASSIGNED_VALUE = 0;
 
     private List<List<Integer>> grid = new ArrayList<>();
-    List<List<List<Integer>>> possibilities = new ArrayList<>();
+    private List<List<List<Integer>>> possibilities = new ArrayList<>();
     private int numberOfCall = 0;
 
     public BacktrackingSolver(String filePath) {
         try {
-            for (String line : Files.readAllLines(Paths.get(filePath))) {
+            for (final String line : Files.readAllLines(Paths.get(filePath))) {
                 List<Integer> numbers = new ArrayList<>(9);
-                for (String number : line.split("(?!^)")) {
+                for (final String number : line.split("(?!^)")) {
                     numbers.add(Integer.parseInt(number));
                 }
                 grid.add(numbers);
@@ -30,12 +30,14 @@ public class BacktrackingSolver {
 
             for (int i = 0; i < 9; ++i) {
                 possibilities.add(new ArrayList<>());
+                final List<List<Integer>> row = possibilities.get(i);
                 for (int j = 0; j < 9; ++j) {
-                    possibilities.get(i).add(new ArrayList<>());
+                    row.add(new ArrayList<>());
+                    final List<Integer> col = possibilities.get(i).get(j);
                     if (grid.get(i).get(j) == UNASSIGNED_VALUE) {
                         for (int k = 1; k <= 9; ++k) {
                             if (isValid(i, j, k)) {
-                                possibilities.get(i).get(j).add(k);
+                                col.add(k);
                             }
                         }
                     }
@@ -55,8 +57,9 @@ public class BacktrackingSolver {
 
         final int x = unassignedCase.getKey();
         final int y = unassignedCase.getValue();
+        final List<Integer> casePossibilities = possibilities.get(x).get(y);
 
-        for (int possibility : possibilities.get(x).get(y)) {
+        for (int possibility : casePossibilities) {
             if(isValid(x,y, possibility)) {
                 grid.get(x).set(y, possibility);
 
@@ -73,9 +76,11 @@ public class BacktrackingSolver {
     private void CheckWithPossibilities() {
         List<Pair<Pair<Integer, Integer>, Integer>> toRemove = new ArrayList<>();
         for (int i = 0; i < MAX_VALUE; i++) {
+            final List<List<Integer>> row = possibilities.get(i);
             for (int j = 0; j < MAX_VALUE; j++) {
-                if (possibilities.get(i).get(j).size() == 1) {
-                    final int possibility = possibilities.get(i).get(j).get(0);
+                final List<Integer> col = row.get(j);
+                if (col.size() == 1) {
+                    final int possibility = col.get(0);
                     grid.get(i).set(j, possibility);
                     toRemove.add(new Pair<>(new Pair<>(i, j), possibility));
                 }
@@ -96,7 +101,7 @@ public class BacktrackingSolver {
         List<Integer> CheckedNumbers = new ArrayList<>();
         List<Pair<Pair<Integer, Integer>, Integer>> toRemove = new ArrayList<>();
         for (int i = 0; i < MAX_VALUE; i++) {
-            for (int k : CurrentRow.get(i)) {
+            for (final int k : CurrentRow.get(i)) {
                 if (!CheckedNumbers.contains(k) && isOnlyLinePossibility(x, i, k)) {
                     grid.get(x).set(i, k);
                     toRemove.add(new Pair<>(new Pair<>(x, i), k));
@@ -113,7 +118,7 @@ public class BacktrackingSolver {
         List<Integer> CheckedNumbers = new ArrayList<>();
         List<Pair<Pair<Integer, Integer>, Integer>> toRemove = new ArrayList<>();
         for (int i = 0; i < MAX_VALUE; i++) {
-            for (int k : possibilities.get(i).get(y)) {
+            for (final int k : possibilities.get(i).get(y)) {
                 if (!CheckedNumbers.contains(k) && isOnlyColumnPossibility(y, i, k)) {
                     grid.get(i).set(y, k);
                     toRemove.add(new Pair<>(new Pair<>(i, y), k));
@@ -129,11 +134,13 @@ public class BacktrackingSolver {
     private void CheckSectionPossibility(int x, int y) {
         List<Integer> CheckedNumbers = new ArrayList<>();
         List<Pair<Pair<Integer, Integer>, Integer>> toRemove = new ArrayList<>();
-        int boxRow = (x / 3) * 3;
-        int boxCol = (y / 3) * 3;
+        final int boxRow = (x / 3) * 3;
+        final int boxCol = (y / 3) * 3;
         for (int i = 0; i < 3; i++) {
+            final List<List<Integer>> row = possibilities.get(i + boxRow);
             for (int j = 0; j < 3; j++) {
-                for (int k : possibilities.get(i + boxRow).get(j + boxCol)) {
+                final List<Integer> col = row.get(j + boxCol);
+                for (final int k : col) {
                     if (!CheckedNumbers.contains(k) && isOnlySectionPossibility(x, y, k)) {
                         grid.get(i + boxRow).set(j + boxCol, k);
                         toRemove.add(new Pair<>(new Pair<>(i, y), k));
@@ -148,13 +155,15 @@ public class BacktrackingSolver {
     }
 
     private boolean isOnlySectionPossibility(int x, int y, int possibility) {
-        int boxRow = (x / 3) * 3;
-        int boxCol = (y / 3) * 3;
+        final int boxRow = (x / 3) * 3;
+        final int boxCol = (y / 3) * 3;
         for (int i = 0; i < 3; i++) {
+            final List<List<Integer>> row = possibilities.get(i + boxRow);
             for (int j = 0; j < 3; j++) {
+                final List<Integer> col = row.get(j + boxCol);
                 if (i == x && j == y)
                     continue;
-                for (int k : possibilities.get(i + boxRow).get(j + boxCol)) {
+                for (final int k : col) {
                     if (k == possibility) {
                         return false;
                     }
@@ -165,10 +174,12 @@ public class BacktrackingSolver {
     }
 
     private boolean isOnlyLinePossibility(int x, int excludedCase, int possibility) {
+        final List<List<Integer>> row = possibilities.get(x);
         for (int i = 0; i < MAX_VALUE; i++) {
             if (excludedCase == i)
                 continue;
-            for (int n : possibilities.get(x).get(i)) {
+            final List<Integer> col = row.get(i);
+            for (final int n : col) {
                 if (n == possibility)
                     return false;
             }
@@ -178,9 +189,10 @@ public class BacktrackingSolver {
 
     private boolean isOnlyColumnPossibility(int y, int excludedCase, int possibility) {
         for (int i = 0; i < MAX_VALUE; i++) {
+            final List<List<Integer>> row = possibilities.get(i);
             if (excludedCase == i)
                 continue;
-            for (int n : possibilities.get(i).get(y)) {
+            for (final int n : row.get(y)) {
                 if (n == possibility)
                     return false;
             }
@@ -216,8 +228,8 @@ public class BacktrackingSolver {
     }
 
     private void RemovePossibilityFromSection(int x, int y, int possibility) {
-        int boxRow = (x / 3) * 3;
-        int boxCol = (y / 3) * 3;
+        final int boxRow = (x / 3) * 3;
+        final int boxCol = (y / 3) * 3;
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 possibilities.get(i + boxRow).get(j + boxCol).removeIf(n -> n == possibility);
@@ -252,23 +264,23 @@ public class BacktrackingSolver {
      */
     public boolean isValid(int row, int col, int value) {
         // Row
-        for (List<Integer> rows : grid) {
+        for (final List<Integer> rows : grid) {
             if (rows.get(col) == value)
                 return false;
         }
 
         // Col
         List<Integer> targetRow = grid.get(row);
-        for (int i : targetRow) {
+        for (final int i : targetRow) {
             if (i == value) {
                 return false;
             }
         }
 
         // Box
-        int boxRow = (row / 3) * 3;
-        int boxCol = (col / 3) * 3;
-        for (int i = 0; i < 3; i++) {
+        final int boxRow = (row / 3) * 3;
+        final int boxCol = (col / 3) * 3;
+        for ( int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 if (grid.get(i + boxRow).get(j + boxCol) == value) {
                     return false;
@@ -280,22 +292,20 @@ public class BacktrackingSolver {
     }
 
     public void Print() {
-        for (List<Integer> row : grid) {
+        for (final List<Integer> row : grid) {
             StringBuilder stringRow = new StringBuilder();
-            for (int number : row) {
+            for (final int number : row) {
                 stringRow.append(number);
             }
-
             System.out.println(stringRow);
         }
-
         System.out.println(numberOfCall);
     }
 
     public void PrintPossibilities() {
-        for (List<List<Integer>> row : possibilities) {
+        for (final List<List<Integer>> row : possibilities) {
             StringBuilder stringRow = new StringBuilder();
-            for (List<Integer> col : row) {
+            for (final List<Integer> col : row) {
                 stringRow.append(' ');
                 if (col.size() == 0)
                     stringRow.append('X');
@@ -319,7 +329,7 @@ public class BacktrackingSolver {
 
         List<List<Integer>> lists = new ArrayList<>();
 
-        for (List<Integer> l : grid) {
+        for (final List<Integer> l : grid) {
             if (l.contains(0)) {
                 return false;
             }
@@ -348,7 +358,7 @@ public class BacktrackingSolver {
 
         lists.addAll(squares);
 
-        for (List<Integer> list : lists) {
+        for (final List<Integer> list : lists) {
             Collections.sort(list);
 
             if (!validList.equals(list)) {
