@@ -1,5 +1,7 @@
 package com.company;
 
+import java.util.List;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -9,6 +11,9 @@ public class Main {
             System.out.println("Usage : files to solve");
             System.exit(-1);
         }
+        long timerTotal = System.currentTimeMillis();
+
+        long timer;
 
         for (int i = 0; i < args.length; ++i)
         {
@@ -16,7 +21,7 @@ public class Main {
 
             System.out.println(args[i]);
 
-            long timer = System.currentTimeMillis();
+            timer = System.currentTimeMillis();
 
             if(solver.Solve()) {
                 timer = System.currentTimeMillis() - timer;
@@ -36,7 +41,7 @@ public class Main {
 
             System.out.println("---------------");
         }
-
-
+        timerTotal = System.currentTimeMillis() - timerTotal;
+        System.out.println("Total time: " + timerTotal + " ms");
     }
 }
