@@ -12,3 +12,12 @@ grid.txt: 40271 / 21
 
 -----------------------------------------
 
+Itération de vendredi soir décrissé
+
+easy.txt: 1 / 127
+medium.txt: 1/ 5
+hard.txt: 4 / 12
+faulty.txt: 1 / 2
+grid.txt: 19982 / 5060
+
+-----------------------------------------
