@@ -65,10 +65,36 @@ public class BacktrackingSolver {
             if(isValid(x,y, possibility)) {
                 grid.get(x).set(y, possibility);
 
-                if (Solve()) {
+                if (numberOfCall >= 10 && ClassicSolve())
+                {
+                    return true;
+                }
+                else if (Solve()) {
                     return true;
                 }
                 grid.get(x).set(y, UNASSIGNED_VALUE);
+            }
+        }
+
+        return false;
+    }
+
+    public boolean ClassicSolve() {
+        numberOfCall++;
+        Pair<Integer, Integer> unassignedCase = findNextUnassignedLocation();
+
+        if(unassignedCase == null)
+            return true;
+
+        for(int i = MIN_VALUE; i <= MAX_VALUE; i++) {
+            if(isValid(unassignedCase.getKey(), unassignedCase.getValue(), i)) {
+                grid.get(unassignedCase.getKey()).set(unassignedCase.getValue(), i);
+
+                if(ClassicSolve()) {
+                    return true;
+                }
+
+                grid.get(unassignedCase.getKey()).set(unassignedCase.getValue(), UNASSIGNED_VALUE);
             }
         }
 
@@ -211,11 +237,7 @@ public class BacktrackingSolver {
     }
 
     private void RemovePossibilityFromCase(int x, int y) {
-        Iterator<Integer> iter = possibilities.get(x).get(y).iterator();
-        while (iter.hasNext()) {
-            iter.next();
-            iter.remove();
-        }
+        possibilities.get(x).get(y).clear();
     }
 
     private void RemovePossibilityFromLine(int x, int possibility) {
