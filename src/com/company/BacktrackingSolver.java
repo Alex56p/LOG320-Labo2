@@ -12,6 +12,7 @@ public class BacktrackingSolver {
 
     private final int MIN_VALUE = 1;
     private final int MAX_VALUE = 9;
+    private final int BOX_SIZE = 3;
     private final int UNASSIGNED_VALUE = 0;
 
     private List<List<Integer>> grid = new ArrayList<>();
@@ -28,14 +29,14 @@ public class BacktrackingSolver {
                 grid.add(numbers);
             }
 
-            for (int i = 0; i < 9; ++i) {
+            for (int i = 0; i < MAX_VALUE; ++i) {
                 possibilities.add(new ArrayList<>());
                 final List<List<Integer>> row = possibilities.get(i);
-                for (int j = 0; j < 9; ++j) {
+                for (int j = 0; j < MAX_VALUE; ++j) {
                     row.add(new ArrayList<>());
                     final List<Integer> col = possibilities.get(i).get(j);
                     if (grid.get(i).get(j) == UNASSIGNED_VALUE) {
-                        for (int k = 1; k <= 9; ++k) {
+                        for (int k = MIN_VALUE; k <= MAX_VALUE; ++k) {
                             if (isValid(i, j, k)) {
                                 col.add(k);
                             }
@@ -59,7 +60,8 @@ public class BacktrackingSolver {
         final int y = unassignedCase.getValue();
         final List<Integer> casePossibilities = possibilities.get(x).get(y);
 
-        for (int possibility : casePossibilities) {
+        for (int i = 0; i < casePossibilities.size(); i++) {
+            int possibility = casePossibilities.get(i);
             if(isValid(x,y, possibility)) {
                 grid.get(x).set(y, possibility);
 
@@ -69,6 +71,7 @@ public class BacktrackingSolver {
                 grid.get(x).set(y, UNASSIGNED_VALUE);
             }
         }
+
         return false;
     }
 
@@ -155,11 +158,11 @@ public class BacktrackingSolver {
     }
 
     private boolean isOnlySectionPossibility(int x, int y, int possibility) {
-        final int boxRow = (x / 3) * 3;
-        final int boxCol = (y / 3) * 3;
-        for (int i = 0; i < 3; i++) {
+        final int boxRow = (x / BOX_SIZE) * BOX_SIZE;
+        final int boxCol = (y / BOX_SIZE) * BOX_SIZE;
+        for (int i = 0; i < BOX_SIZE; i++) {
             final List<List<Integer>> row = possibilities.get(i + boxRow);
-            for (int j = 0; j < 3; j++) {
+            for (int j = 0; j < BOX_SIZE; j++) {
                 final List<Integer> col = row.get(j + boxCol);
                 if (i == x && j == y)
                     continue;
@@ -210,7 +213,7 @@ public class BacktrackingSolver {
     private void RemovePossibilityFromCase(int x, int y) {
         Iterator<Integer> iter = possibilities.get(x).get(y).iterator();
         while (iter.hasNext()) {
-            int possibility = iter.next();
+            iter.next();
             iter.remove();
         }
     }
@@ -228,10 +231,10 @@ public class BacktrackingSolver {
     }
 
     private void RemovePossibilityFromSection(int x, int y, int possibility) {
-        final int boxRow = (x / 3) * 3;
-        final int boxCol = (y / 3) * 3;
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
+        final int boxRow = (x / BOX_SIZE) * BOX_SIZE;
+        final int boxCol = (y / BOX_SIZE) * BOX_SIZE;
+        for (int i = 0; i < BOX_SIZE; i++) {
+            for (int j = 0; j < BOX_SIZE; j++) {
                 possibilities.get(i + boxRow).get(j + boxCol).removeIf(n -> n == possibility);
             }
         }
@@ -278,10 +281,10 @@ public class BacktrackingSolver {
         }
 
         // Box
-        final int boxRow = (row / 3) * 3;
-        final int boxCol = (col / 3) * 3;
-        for ( int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
+        final int boxRow = (row / BOX_SIZE) * BOX_SIZE;
+        final int boxCol = (col / BOX_SIZE) * BOX_SIZE;
+        for ( int i = 0; i < BOX_SIZE; i++) {
+            for (int j = 0; j < BOX_SIZE; j++) {
                 if (grid.get(i + boxRow).get(j + boxCol) == value) {
                     return false;
                 }
@@ -341,15 +344,15 @@ public class BacktrackingSolver {
 
         List<List<Integer>> squares = new ArrayList<>();
 
-        for (int i = 0; i < 9; ++i) {
+        for (int i = 0; i < MAX_VALUE; ++i) {
             squares.add(new ArrayList<>());
         }
 
-        for (int i = 0; i < 9; ++i) {
+        for (int i = 0; i < MAX_VALUE; ++i) {
             List<Integer> column = new ArrayList<>();
 
-            for (int j = 0; j < 9; ++j) {
-                squares.get(i / 3 * 3 + j / 3).add(grid.get(i).get(j));
+            for (int j = 0; j < MAX_VALUE; ++j) {
+                squares.get(i / BOX_SIZE * BOX_SIZE + j / BOX_SIZE).add(grid.get(i).get(j));
                 column.add(grid.get(j).get(i));
             }
 
