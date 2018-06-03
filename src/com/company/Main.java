@@ -19,7 +19,10 @@ public class Main {
         {
             BacktrackingSolver solver = new BacktrackingSolver(args[i]);
 
-            System.out.println(args[i]);
+            solver.Solve();
+            solver.Print();
+
+            /*System.out.println(args[i]);
 
             timer = System.currentTimeMillis();
 
@@ -35,13 +38,13 @@ public class Main {
                 solver.Print();
 
                 System.out.println("No Solution!");
-            }
+            }*/
 
-            System.out.println("Time: " + timer + " ms");
+            //System.out.println("Time: " + timer + " ms");
 
-            System.out.println("---------------");
+            //System.out.println("---------------");
         }
-        timerTotal = System.currentTimeMillis() - timerTotal;
-        System.out.println("Total time: " + timerTotal + " ms");
+        //timerTotal = System.currentTimeMillis() - timerTotal;
+        //System.out.println("Total time: " + timerTotal + " ms");
     }
 }
